@@ -1,0 +1,20 @@
+From c4021a92361ca96cb6cd7b91b2f6be08bfa18808 Mon Sep 17 00:00:00 2001
+From: Michael Jeanson <mjeanson@efficios.com>
+Date: Mon, 30 Jan 2017 17:39:12 -0500
+Subject: [PATCH] WIP: Add missing dep to live lib
+
+---
+ formats/lttng-live/Makefile.am | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/formats/lttng-live/Makefile.am b/formats/lttng-live/Makefile.am
+index e536160..f5f291c 100644
+--- a/formats/lttng-live/Makefile.am
++++ b/formats/lttng-live/Makefile.am
+@@ -15,4 +15,5 @@ libbabeltrace_lttng_live_la_LDFLAGS = \
+ 	$(LD_NO_AS_NEEDED) -version-info $(BABELTRACE_LIBRARY_VERSION)
+ 
+ libbabeltrace_lttng_live_la_LIBADD = \
+-	$(top_builddir)/lib/libbabeltrace.la
++	$(top_builddir)/lib/libbabeltrace.la \
++	$(top_builddir)/formats/ctf/libbabeltrace-ctf.la

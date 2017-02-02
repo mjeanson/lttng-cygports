@@ -1,0 +1,23 @@
+From 0b8be1a8dbffe00ecb0e595f8fb14beb6b8ef6d2 Mon Sep 17 00:00:00 2001
+From: Michael Jeanson <mjeanson@efficios.com>
+Date: Thu, 26 Jan 2017 14:58:00 -0500
+Subject: [PATCH] Port: add cygwin support to endian compat
+
+Signed-off-by: Michael Jeanson <mjeanson@efficios.com>
+---
+ src/common/compat/endian.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/common/compat/endian.h b/src/common/compat/endian.h
+index 4edc124..6427feb 100644
+--- a/src/common/compat/endian.h
++++ b/src/common/compat/endian.h
+@@ -18,7 +18,7 @@
+ #ifndef _COMPAT_ENDIAN_H
+ #define _COMPAT_ENDIAN_H
+ 
+-#ifdef __linux__
++#if defined(__linux__) || defined(__CYGWIN__)
+ #include <endian.h>
+ 
+ /*

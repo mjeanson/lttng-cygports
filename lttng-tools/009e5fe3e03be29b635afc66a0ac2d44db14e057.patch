@@ -1,0 +1,66 @@
+From 009e5fe3e03be29b635afc66a0ac2d44db14e057 Mon Sep 17 00:00:00 2001
+From: Michael Jeanson <mjeanson@efficios.com>
+Date: Wed, 1 Feb 2017 12:50:30 -0500
+Subject: [PATCH] Port: Link with no-undefined on Windows
+
+Signed-off-by: Michael Jeanson <mjeanson@efficios.com>
+---
+ configure.ac                     | 10 ++++++++++
+ src/bin/lttng-relayd/Makefile.am |  4 ++--
+ src/lib/lttng-ctl/Makefile.am    |  3 +++
+ 3 files changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 4c7a826..954ffb4 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -65,6 +65,16 @@ CC="$PTHREAD_CC"
+ 
+ AX_LIB_SOCKET_NSL
+ 
++LT_NO_UNDEFINED=""
++AS_CASE([$host_os],
++  [cygwin*],
++    [
++      LT_NO_UNDEFINED="-no-undefined"
++    ]
++)
++
++AC_SUBST(LT_NO_UNDEFINED)
++
+ # Compute minor/major/patchlevel version numbers
+ major_version=$(echo AC_PACKAGE_VERSION | $SED 's/^\([[0-9]]\)*\.[[0-9]]*\.[[0-9]]*.*$/\1/')
+ minor_version=$(echo AC_PACKAGE_VERSION | $SED 's/^[[0-9]]*\.\([[0-9]]*\)\.[[0-9]]*.*$/\1/')
+diff --git a/src/bin/lttng-relayd/Makefile.am b/src/bin/lttng-relayd/Makefile.am
+index 4857074..df87bc3 100644
+--- a/src/bin/lttng-relayd/Makefile.am
++++ b/src/bin/lttng-relayd/Makefile.am
+@@ -24,7 +24,6 @@ lttng_relayd_SOURCES = main.c lttng-relayd.h utils.h utils.c cmd.h \
+ 
+ # link on liblttngctl for check if relayd is already alive.
+ lttng_relayd_LDADD = -lurcu-common -lurcu \
+-		$(top_builddir)/src/lib/lttng-ctl/liblttng-ctl.la \
+ 		$(top_builddir)/src/common/sessiond-comm/libsessiond-comm.la \
+ 		$(top_builddir)/src/common/hashtable/libhashtable.la \
+ 		$(top_builddir)/src/common/libcommon.la \
+@@ -32,4 +31,5 @@ lttng_relayd_LDADD = -lurcu-common -lurcu \
+ 		$(top_builddir)/src/common/index/libindex.la \
+ 		$(top_builddir)/src/common/health/libhealth.la \
+ 		$(top_builddir)/src/common/config/libconfig.la \
+-		$(top_builddir)/src/common/testpoint/libtestpoint.la
++		$(top_builddir)/src/common/testpoint/libtestpoint.la \
++		$(top_builddir)/src/lib/lttng-ctl/liblttng-ctl.la
+diff --git a/src/lib/lttng-ctl/Makefile.am b/src/lib/lttng-ctl/Makefile.am
+index 5b87e38..6b6a6ee 100644
+--- a/src/lib/lttng-ctl/Makefile.am
++++ b/src/lib/lttng-ctl/Makefile.am
+@@ -7,6 +7,9 @@ lib_LTLIBRARIES = liblttng-ctl.la
+ liblttng_ctl_la_SOURCES = lttng-ctl.c snapshot.c lttng-ctl-helper.h \
+ 		lttng-ctl-health.c save.c load.c deprecated-symbols.c
+ 
++liblttng_ctl_la_LDFLAGS = \
++		$(LT_NO_UNDEFINED)
++
+ liblttng_ctl_la_LIBADD = \
+ 		$(top_builddir)/src/common/sessiond-comm/libsessiond-comm.la \
+ 		$(top_builddir)/src/common/libcommon.la \

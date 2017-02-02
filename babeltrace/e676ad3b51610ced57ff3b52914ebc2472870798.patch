@@ -1,0 +1,89 @@
+From e676ad3b51610ced57ff3b52914ebc2472870798 Mon Sep 17 00:00:00 2001
+From: Michael Jeanson <mjeanson@efficios.com>
+Date: Fri, 9 Sep 2016 21:08:13 +0000
+Subject: [PATCH] Port: replace strerror_r() with glib g_strerror()
+
+Signed-off-by: Michael Jeanson <mjeanson@efficios.com>
+Acked-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+---
+ configure.ac                             |  1 -
+ include/babeltrace/babeltrace-internal.h | 12 ++++++------
+ include/babeltrace/compat/string.h       | 26 --------------------------
+ 3 files changed, 6 insertions(+), 33 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 56255d0..6d097bb 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -97,7 +97,6 @@ AC_FUNC_MALLOC
+ AC_FUNC_MKTIME
+ AC_FUNC_MMAP
+ AC_FUNC_REALLOC
+-AC_FUNC_STRERROR_R
+ AC_CHECK_FUNCS([ \
+ 	atexit \
+ 	dirfd \
+diff --git a/include/babeltrace/babeltrace-internal.h b/include/babeltrace/babeltrace-internal.h
+index a903c68..0e73cdb 100644
+--- a/include/babeltrace/babeltrace-internal.h
++++ b/include/babeltrace/babeltrace-internal.h
+@@ -83,16 +83,16 @@ extern int babeltrace_verbose, babeltrace_debug;
+ 
+ #define _bt_printf_perror(fp, fmt, args...)				\
+ 	({								\
+-		char buf[PERROR_BUFLEN] = "Error in strerror_r()";	\
+-		compat_strerror_r(errno, buf, sizeof(buf));		\
+-		_bt_printfe(fp, "error", buf, fmt, ## args);		\
++		const char *errstr;					\
++		errstr = g_strerror(errno);				\
++		_bt_printfe(fp, "error", errstr, fmt, ## args);		\
+ 	})
+ 
+ #define _bt_printfl_perror(fp, lineno, fmt, args...)			\
+ 	({								\
+-		char buf[PERROR_BUFLEN] = "Error in strerror_r()";	\
+-		compat_strerror_r(errno, buf, sizeof(buf));		\
+-		_bt_printfle(fp, "error", lineno, buf, fmt, ## args);	\
++		const char *errstr;					\
++		errstr = g_strerror(errno);				\
++		_bt_printfle(fp, "error", lineno, errstr, fmt, ## args);\
+ 	})
+ 
+ /* printf without lineno information */
+diff --git a/include/babeltrace/compat/string.h b/include/babeltrace/compat/string.h
+index 6092616..c3325a3 100644
+--- a/include/babeltrace/compat/string.h
++++ b/include/babeltrace/compat/string.h
+@@ -26,32 +26,6 @@
+ #include <string.h>
+ #include <stdlib.h>
+ 
+-#if !defined(__GLIBC__) || ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !defined(_GNU_SOURCE))
+-
+-/* XSI-compliant strerror_r */
+-static inline
+-int compat_strerror_r(int errnum, char *buf, size_t buflen)
+-{
+-	return strerror_r(errnum, buf, buflen);
+-}
+-
+-#else
+-
+-/* GNU-compliant strerror_r */
+-static inline
+-int compat_strerror_r(int errnum, char *buf, size_t buflen)
+-{
+-	char *retbuf;
+-
+-	retbuf = strerror_r(errnum, buf, buflen);
+-	if (retbuf != buf)
+-		strncpy(buf, retbuf, buflen);
+-	buf[buflen - 1] = '\0';
+-	return 0;
+-}
+-
+-#endif
+-
+ #ifdef HAVE_STRNLEN
+ static inline
+ size_t bt_strnlen(const char *str, size_t max)

@@ -1,0 +1,228 @@
+From a368d60c218e7863c78287c27fe975d51de1d1ab Mon Sep 17 00:00:00 2001
+From: Michael Jeanson <mjeanson@efficios.com>
+Date: Tue, 25 Oct 2016 17:13:57 -0400
+Subject: [PATCH] Port: Link with no-undefined on Windows
+
+Signed-off-by: Michael Jeanson <mjeanson@efficios.com>
+---
+ configure.ac                       | 7 +++++++
+ formats/bt-dummy/Makefile.am       | 1 +
+ formats/ctf-metadata/Makefile.am   | 1 +
+ formats/ctf-text/Makefile.am       | 1 +
+ formats/ctf-text/types/Makefile.am | 2 ++
+ formats/ctf/Makefile.am            | 1 +
+ formats/ctf/ir/Makefile.am         | 2 ++
+ formats/ctf/metadata/Makefile.am   | 2 ++
+ formats/ctf/types/Makefile.am      | 2 ++
+ formats/ctf/writer/Makefile.am     | 2 ++
+ formats/lttng-live/Makefile.am     | 1 +
+ lib/Makefile.am                    | 3 ++-
+ lib/prio_heap/Makefile.am          | 2 ++
+ tests/utils/tap/Makefile.am        | 1 +
+ types/Makefile.am                  | 2 ++
+ 15 files changed, 29 insertions(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 6d097bb..b674170 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -128,6 +128,7 @@ AC_CHECK_FUNCS([ \
+ 
+ MINGW32=no
+ DEFAULT_ENABLE_DEBUG_INFO=yes
++LT_NO_UNDEFINED=""
+ AS_CASE([$host_os],
+   [solaris*|darwin*],
+     [
+@@ -136,10 +137,16 @@ AS_CASE([$host_os],
+   [mingw*],
+     [
+ 	MINGW32=yes
++	LT_NO_UNDEFINED="-no-undefined"
++    ],
++  [cygwin*],
++    [
++	LT_NO_UNDEFINED="-no-undefined"
+     ]
+ )
+ 
+ AM_CONDITIONAL([BABELTRACE_BUILD_WITH_MINGW], [test "x$MINGW32" = "xyes"])
++AC_SUBST(LT_NO_UNDEFINED)
+ 
+ # Check what libraries are required on this platform to link sockets programs.
+ AX_LIB_SOCKET_NSL
+diff --git a/formats/bt-dummy/Makefile.am b/formats/bt-dummy/Makefile.am
+index e8ae4de..7836b07 100644
+--- a/formats/bt-dummy/Makefile.am
++++ b/formats/bt-dummy/Makefile.am
+@@ -7,6 +7,7 @@ libbabeltrace_dummy_la_SOURCES = \
+ 
+ # Request that the linker keeps all static libraries objects.
+ libbabeltrace_dummy_la_LDFLAGS = \
++	$(LT_NO_UNDEFINED) \
+ 	$(LD_NO_AS_NEEDED) -version-info $(BABELTRACE_LIBRARY_VERSION)
+ 
+ libbabeltrace_dummy_la_LIBADD = \
+diff --git a/formats/ctf-metadata/Makefile.am b/formats/ctf-metadata/Makefile.am
+index 252d9af..20656b8 100644
+--- a/formats/ctf-metadata/Makefile.am
++++ b/formats/ctf-metadata/Makefile.am
+@@ -7,6 +7,7 @@ libbabeltrace_ctf_metadata_la_SOURCES = \
+ 
+ # Request that the linker keeps all static libraries objects.
+ libbabeltrace_ctf_metadata_la_LDFLAGS = \
++	$(LT_NO_UNDEFINED) \
+ 	$(LD_NO_AS_NEEDED) -version-info $(BABELTRACE_LIBRARY_VERSION)
+ 
+ libbabeltrace_ctf_metadata_la_LIBADD = \
+diff --git a/formats/ctf-text/Makefile.am b/formats/ctf-text/Makefile.am
+index f913de7..d773c81 100644
+--- a/formats/ctf-text/Makefile.am
++++ b/formats/ctf-text/Makefile.am
+@@ -8,6 +8,7 @@ libbabeltrace_ctf_text_la_SOURCES = \
+ 	ctf-text.c
+ 
+ libbabeltrace_ctf_text_la_LDFLAGS = \
++	$(LT_NO_UNDEFINED) \
+ 	$(LD_NO_AS_NEEDED) -version-info $(BABELTRACE_LIBRARY_VERSION) \
+ 	types/libctf-text-types.la
+ 
+diff --git a/formats/ctf-text/types/Makefile.am b/formats/ctf-text/types/Makefile.am
+index 71796f9..576d29d 100644
+--- a/formats/ctf-text/types/Makefile.am
++++ b/formats/ctf-text/types/Makefile.am
+@@ -12,5 +12,7 @@ libctf_text_types_la_SOURCES = \
+ 	struct.c \
+ 	variant.c
+ 
++libctf_text_types_la_LDFLAGS = $(LT_NO_UNDEFINED)
++
+ libctf_text_types_la_LIBADD = \
+ 	$(top_builddir)/lib/libbabeltrace.la
+diff --git a/formats/ctf/Makefile.am b/formats/ctf/Makefile.am
+index 2eb526d..23ae0b9 100644
+--- a/formats/ctf/Makefile.am
++++ b/formats/ctf/Makefile.am
+@@ -13,6 +13,7 @@ libbabeltrace_ctf_la_SOURCES = \
+ 
+ # Request that the linker keeps all static libraries objects.
+ libbabeltrace_ctf_la_LDFLAGS = \
++	$(LT_NO_UNDEFINED) \
+ 	$(LD_NO_AS_NEEDED) -version-info $(BABELTRACE_LIBRARY_VERSION)
+ 
+ libbabeltrace_ctf_la_LIBADD = \
+diff --git a/formats/ctf/ir/Makefile.am b/formats/ctf/ir/Makefile.am
+index 1b7b5d8..6f5b06e 100644
+--- a/formats/ctf/ir/Makefile.am
++++ b/formats/ctf/ir/Makefile.am
+@@ -20,6 +20,8 @@ libctf_ir_la_SOURCES = \
+ 	values.c \
+ 	ref.c
+ 
++libctf_ir_la_LDFLAGS = $(LT_NO_UNDEFINED)
++
+ libctf_ir_la_LIBADD = \
+ 	$(top_builddir)/lib/libbabeltrace.la
+ 
+diff --git a/formats/ctf/metadata/Makefile.am b/formats/ctf/metadata/Makefile.am
+index cc67e9e..573f94d 100644
+--- a/formats/ctf/metadata/Makefile.am
++++ b/formats/ctf/metadata/Makefile.am
+@@ -16,6 +16,7 @@ libctf_parser_la_SOURCES = ctf-lexer.l ctf-parser.y objstack.c
+ # with bt_.
+ libctf_parser_la_CFLAGS = $(AM_CFLAGS) -I$(srcdir) \
+ 		-include $(srcdir)/ctf-scanner-symbols.h
++libctf_parser_la_LDFLAGS = $(LT_NO_UNDEFINED)
+ 
+ libctf_ast_la_CFLAGS = $(AM_CFLAGS) -I$(builddir)
+ libctf_ast_la_SOURCES = ctf-visitor-xml.c \
+@@ -24,6 +25,7 @@ libctf_ast_la_SOURCES = ctf-visitor-xml.c \
+ 		ctf-visitor-generate-io-struct.c
+ libctf_ast_la_LIBADD = \
+ 	$(top_builddir)/lib/libbabeltrace.la
++libctf_ast_la_LDFLAGS = $(LT_NO_UNDEFINED)
+ 
+ if BABELTRACE_BUILD_WITH_LIBUUID
+ libctf_ast_la_LIBADD += -luuid
+diff --git a/formats/ctf/types/Makefile.am b/formats/ctf/types/Makefile.am
+index 20c1fdd..a1bcfb2 100644
+--- a/formats/ctf/types/Makefile.am
++++ b/formats/ctf/types/Makefile.am
+@@ -12,5 +12,7 @@ libctf_types_la_SOURCES = \
+ 	struct.c \
+ 	variant.c
+ 
++libctf_types_la_LDFLAGS = $(LT_NO_UNDEFINED)
++
+ libctf_types_la_LIBADD = \
+ 	$(top_builddir)/lib/libbabeltrace.la
+diff --git a/formats/ctf/writer/Makefile.am b/formats/ctf/writer/Makefile.am
+index 1f06c1a..e328084 100644
+--- a/formats/ctf/writer/Makefile.am
++++ b/formats/ctf/writer/Makefile.am
+@@ -9,6 +9,8 @@ libctf_writer_la_SOURCES = \
+ libctf_writer_la_LIBADD = \
+ 	$(top_builddir)/lib/libbabeltrace.la
+ 
++libctf_writer_la_LDFLAGS = $(LT_NO_UNDEFINED)
++
+ if BABELTRACE_BUILD_WITH_LIBUUID
+ libctf_writer_la_LIBADD += -luuid
+ endif
+diff --git a/formats/lttng-live/Makefile.am b/formats/lttng-live/Makefile.am
+index d976979..e536160 100644
+--- a/formats/lttng-live/Makefile.am
++++ b/formats/lttng-live/Makefile.am
+@@ -11,6 +11,7 @@ libbabeltrace_lttng_live_la_SOURCES = \
+ 
+ # Request that the linker keeps all static libraries objects.
+ libbabeltrace_lttng_live_la_LDFLAGS = \
++	$(LT_NO_UNDEFINED) \
+ 	$(LD_NO_AS_NEEDED) -version-info $(BABELTRACE_LIBRARY_VERSION)
+ 
+ libbabeltrace_lttng_live_la_LIBADD = \
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 007abb7..be029a7 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -11,7 +11,8 @@ libbabeltrace_la_SOURCES = babeltrace.c \
+ 			   trace-collection.c \
+ 			   registry.c
+ 
+-libbabeltrace_la_LDFLAGS = -version-info $(BABELTRACE_LIBRARY_VERSION)
++libbabeltrace_la_LDFLAGS = \
++	$(LT_NO_UNDEFINED) -version-info $(BABELTRACE_LIBRARY_VERSION)
+ 
+ if ENABLE_DEBUG_INFO
+ noinst_LTLIBRARIES = libdebug-info.la
+diff --git a/lib/prio_heap/Makefile.am b/lib/prio_heap/Makefile.am
+index fffa43d..82d7fad 100644
+--- a/lib/prio_heap/Makefile.am
++++ b/lib/prio_heap/Makefile.am
+@@ -3,3 +3,5 @@ AM_CFLAGS = $(PACKAGE_CFLAGS) -I$(top_srcdir)/include
+ noinst_LTLIBRARIES = libprio_heap.la
+ 
+ libprio_heap_la_SOURCES = prio_heap.c
++
++libprio_heap_la_LDFLAGS = $(LT_NO_UNDEFINED)
+diff --git a/tests/utils/tap/Makefile.am b/tests/utils/tap/Makefile.am
+index 8b224c4..8a8ec12 100644
+--- a/tests/utils/tap/Makefile.am
++++ b/tests/utils/tap/Makefile.am
+@@ -1,5 +1,6 @@
+ noinst_LTLIBRARIES = libtap.la
+ libtap_la_SOURCES = tap.c tap.h
++libtap_la_LDFLAGS = $(LT_NO_UNDEFINED)
+ 
+ SCRIPT_LIST = tap.sh
+ 
+diff --git a/types/Makefile.am b/types/Makefile.am
+index 0417519..bdaa84b 100644
+--- a/types/Makefile.am
++++ b/types/Makefile.am
+@@ -12,3 +12,5 @@ libbabeltrace_types_la_SOURCES = \
+ 	struct.c \
+ 	variant.c \
+ 	types.c
++
++libbabeltrace_types_la_LDFLAGS = $(LT_NO_UNDEFINED)

@@ -1,0 +1,21 @@
+NAME="liburcu"
+VERSION=0.9.3
+RELEASE=1
+CATEGORY="Libs"
+SUMMARY="Userspace RCU"
+DESCRIPTION="TODO"
+HOMEPAGE="http://liburcu.org"
+SRC_URI="http://lttng.org/files/urcu/userspace-rcu-${VERSION}.tar.bz2"
+SRC_DIR="userspace-rcu-${VERSION}"
+PATCH_URI="dont-build-examples.patch"
+
+
+DEPEND="cygwin libgcc1 pkg-config bison flex gcc-core make pkg-config"
+
+
+PKG_NAMES="${NAME} ${NAME}-devel"
+
+liburcu_CONTENTS="usr/bin/*.dll usr/share/doc/"
+liburcu_devel_CONTENTS="usr/include/ usr/lib/"
+
+KEEP_LA_FILES="none"

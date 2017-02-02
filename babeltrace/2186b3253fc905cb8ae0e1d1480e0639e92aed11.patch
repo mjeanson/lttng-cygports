@@ -1,0 +1,157 @@
+From 2186b3253fc905cb8ae0e1d1480e0639e92aed11 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?J=C3=A9r=C3=A9mie=20Galarneau?=
+ <jeremie.galarneau@efficios.com>
+Date: Wed, 14 Sep 2016 13:42:03 -0400
+Subject: [PATCH] Add empty plug-in hooks to prevent their elimination by the
+ linker
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Jérémie Galarneau <jeremie.galarneau@efficios.com>
+---
+ converter/babeltrace.c                 | 17 +++++++++++++++++
+ formats/bt-dummy/bt-dummy.c            |  8 ++++++++
+ formats/ctf-metadata/ctf-metadata.c    |  8 ++++++++
+ formats/ctf-text/ctf-text.c            |  8 ++++++++
+ formats/ctf/ctf.c                      |  8 ++++++++
+ formats/lttng-live/lttng-live-plugin.c |  8 ++++++++
+ 6 files changed, 57 insertions(+)
+
+diff --git a/converter/babeltrace.c b/converter/babeltrace.c
+index 2e4003c..f74384e 100644
+--- a/converter/babeltrace.c
++++ b/converter/babeltrace.c
+@@ -76,6 +76,12 @@ static int opt_stream_intersection;
+ 
+ static struct bt_format *fmt_read;
+ 
++void bt_dummy_hook(void);
++void bt_lttng_live_hook(void);
++void bt_ctf_hook(void);
++void bt_ctf_text_hook(void);
++void bt_ctf_metadata_hook(void);
++
+ static
+ void strlower(char *str)
+ {
+@@ -703,6 +709,15 @@ int convert_trace(struct bt_trace_descriptor *td_write,
+ 	return ret;
+ }
+ 
++void call_plugins_hooks(void)
++{
++	bt_dummy_hook();
++	bt_lttng_live_hook();
++	bt_ctf_hook();
++	bt_ctf_text_hook();
++	bt_ctf_metadata_hook();
++}
++
+ int main(int argc, char **argv)
+ {
+ 	int ret, partial_error = 0, open_success = 0;
+@@ -711,6 +726,8 @@ int main(int argc, char **argv)
+ 	struct bt_context *ctx;
+ 	int i;
+ 
++	call_plugins_hooks();
++
+ 	opt_input_paths = g_ptr_array_new();
+ 
+ 	ret = parse_options(argc, argv);
+diff --git a/formats/bt-dummy/bt-dummy.c b/formats/bt-dummy/bt-dummy.c
+index 6192e88..65f2308 100644
+--- a/formats/bt-dummy/bt-dummy.c
++++ b/formats/bt-dummy/bt-dummy.c
+@@ -38,6 +38,14 @@
+ #include <unistd.h>
+ #include <stdlib.h>
+ 
++void bt_dummy_hook(void)
++{
++	/*
++	 * Dummy function to prevent the linker from discarding this format as
++	 * "unused" in static builds.
++	 */
++}
++
+ static
+ int bt_dummy_write_event(struct bt_stream_pos *ppos, struct ctf_stream_definition *stream)
+ {
+diff --git a/formats/ctf-metadata/ctf-metadata.c b/formats/ctf-metadata/ctf-metadata.c
+index a5a74c3..a47fd36 100644
+--- a/formats/ctf-metadata/ctf-metadata.c
++++ b/formats/ctf-metadata/ctf-metadata.c
+@@ -54,6 +54,14 @@ struct bt_format ctf_metadata_format = {
+ 	.close_trace = ctf_metadata_close_trace,
+ };
+ 
++void bt_ctf_metadata_hook(void)
++{
++	/*
++	 * Dummy function to prevent the linker from discarding this format as
++	 * "unused" in static builds.
++	 */
++}
++
+ static
+ int ctf_metadata_trace_pre_handler(struct bt_stream_pos *ppos,
+ 			struct bt_trace_descriptor *td)
+diff --git a/formats/ctf-text/ctf-text.c b/formats/ctf-text/ctf-text.c
+index cc22336..017f311 100644
+--- a/formats/ctf-text/ctf-text.c
++++ b/formats/ctf-text/ctf-text.c
+@@ -139,6 +139,14 @@ struct ctf_callsite_dups *ctf_trace_callsite_lookup(struct ctf_trace *trace,
+ 			(gpointer) (unsigned long) callsite_name);
+ }
+ 
++void bt_ctf_text_hook(void)
++{
++	/*
++	 * Dummy function to prevent the linker from discarding this format as
++	 * "unused" in static builds.
++	 */
++}
++
+ int print_field(struct bt_definition *definition)
+ {
+ 	/* Print all fields in verbose mode */
+diff --git a/formats/ctf/ctf.c b/formats/ctf/ctf.c
+index 324b9f8..d6d078f 100644
+--- a/formats/ctf/ctf.c
++++ b/formats/ctf/ctf.c
+@@ -157,6 +157,14 @@ struct bt_format ctf_format = {
+ 	.convert_index_timestamp = ctf_convert_index_timestamp,
+ };
+ 
++void bt_ctf_hook(void)
++{
++	/*
++	 * Dummy function to prevent the linker from discarding this format as
++	 * "unused" in static builds.
++	 */
++}
++
+ static
+ uint64_t ctf_timestamp_begin(struct bt_trace_descriptor *descriptor,
+ 		struct bt_trace_handle *handle, enum bt_clock_type type)
+diff --git a/formats/lttng-live/lttng-live-plugin.c b/formats/lttng-live/lttng-live-plugin.c
+index a1fbb9e..dfabb98 100644
+--- a/formats/lttng-live/lttng-live-plugin.c
++++ b/formats/lttng-live/lttng-live-plugin.c
+@@ -41,6 +41,14 @@
+ 
+ static volatile int should_quit;
+ 
++void bt_lttng_live_hook(void)
++{
++	/*
++	 * Dummy function to prevent the linker from discarding this format as
++	 * "unused" in static builds.
++	 */
++}
++
+ int lttng_live_should_quit(void)
+ {
+ 	return should_quit;

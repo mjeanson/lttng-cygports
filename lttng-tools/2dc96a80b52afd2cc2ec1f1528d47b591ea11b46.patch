@@ -1,0 +1,29 @@
+From 2dc96a80b52afd2cc2ec1f1528d47b591ea11b46 Mon Sep 17 00:00:00 2001
+From: Michael Jeanson <mjeanson@efficios.com>
+Date: Thu, 26 Jan 2017 14:35:00 -0500
+Subject: [PATCH] Fix: Lazily initialize max poll set size in poll compat
+
+This was applied to the epoll implementation in commit
+22dad56815ce0201c5ae7d5ef5d79cc0c6a42c5e
+
+Signed-off-by: Michael Jeanson <mjeanson@efficios.com>
+---
+ src/common/compat/compat-poll.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/common/compat/compat-poll.c b/src/common/compat/compat-poll.c
+index cc280c7..7d4d0e1 100644
+--- a/src/common/compat/compat-poll.c
++++ b/src/common/compat/compat-poll.c
+@@ -111,8 +111,9 @@ int compat_poll_create(struct lttng_poll_event *events, int size)
+ 	}
+ 
+ 	if (!poll_max_size) {
+-		ERR("poll_max_size not initialized yet");
+-		goto error;
++		if (lttng_poll_set_max_size()) {
++			goto error;
++		}
+ 	}
+ 
+ 	/* Don't bust the limit here */

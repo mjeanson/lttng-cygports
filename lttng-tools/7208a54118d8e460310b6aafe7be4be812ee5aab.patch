@@ -1,0 +1,30 @@
+From 7208a54118d8e460310b6aafe7be4be812ee5aab Mon Sep 17 00:00:00 2001
+From: Michael Jeanson <mjeanson@efficios.com>
+Date: Thu, 26 Jan 2017 15:01:10 -0500
+Subject: [PATCH] Port: win32 DLLs don't support hidden symbols
+
+Signed-off-by: Michael Jeanson <mjeanson@efficios.com>
+---
+ src/common/macros.h | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/src/common/macros.h b/src/common/macros.h
+index 8ae6535..90849ed 100644
+--- a/src/common/macros.h
++++ b/src/common/macros.h
+@@ -74,7 +74,14 @@ void *zmalloc(size_t len)
+ #define LTTNG_PACKED __attribute__((__packed__))
+ #endif
+ 
+-#ifndef LTTNG_HIDDEN
++/*
++ * LTTNG_HIDDEN: set the hidden attribute for internal functions
++ * On Windows, symbols are local unless explicitly exported,
++ * see https://gcc.gnu.org/wiki/Visibility
++ */
++#if defined(_WIN32) || defined(__CYGWIN__)
++#define LTTNG_HIDDEN
++#else
+ #define LTTNG_HIDDEN __attribute__((visibility("hidden")))
+ #endif
+ 

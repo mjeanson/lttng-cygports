@@ -1,0 +1,27 @@
+NAME="babeltrace"
+VERSION=1.5.1
+RELEASE=1
+CATEGORY="Libs"
+SUMMARY="Babeltrace"
+DESCRIPTION="TODO"
+HOMEPAGE="http://diamon.org/babeltrace/"
+SRC_URI="http://www.efficios.com/files/babeltrace/babeltrace-${VERSION}.tar.bz2"
+SRC_DIR="babeltrace-${VERSION}"
+PATCH_URI="e676ad3b51610ced57ff3b52914ebc2472870798.patch
+           e77a6f9ba9908e49d33085fdce5dc48a9485da8b.patch
+           a368d60c218e7863c78287c27fe975d51de1d1ab.patch
+           c4021a92361ca96cb6cd7b91b2f6be08bfa18808.patch
+           2186b3253fc905cb8ae0e1d1480e0639e92aed11.patch"
+
+
+DEPEND="cygwin libgcc1 libglib2.0_0 libpopt-devel libpopt0 libuuid-devel libuuid1 pkg-config bison flex gcc-core make pkg-config"
+
+CYGCONF_ARGS="--disable-debug-info"
+
+
+PKG_NAMES="${NAME} ${NAME}-devel"
+
+babeltrace_CONTENTS="usr/bin/*.exe usr/bin/*.dll usr/share/doc/ usr/share/man/"
+babeltrace_devel_CONTENTS="usr/include/ usr/lib/"
+
+KEEP_LA_FILES="none"

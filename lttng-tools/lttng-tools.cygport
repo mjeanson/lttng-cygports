@@ -1,0 +1,28 @@
+NAME="lttng-tools"
+VERSION=2.9.3
+RELEASE=1
+CATEGORY="Libs"
+SUMMARY="LTTng tools"
+DESCRIPTION="TODO"
+HOMEPAGE="http://lttng.org/"
+SRC_URI="http://lttng.org/files/lttng-tools/lttng-tools-${VERSION}.tar.bz2"
+SRC_DIR="lttng-tools-${VERSION}"
+PATCH_URI="2dc96a80b52afd2cc2ec1f1528d47b591ea11b46.patch
+           52d5c96ac034bdd9505e96ec2f9307d6b1a94c0c.patch
+           0b8be1a8dbffe00ecb0e595f8fb14beb6b8ef6d2.patch
+           7208a54118d8e460310b6aafe7be4be812ee5aab.patch
+           009e5fe3e03be29b635afc66a0ac2d44db14e057.patch"
+
+
+DEPEND="cygwin libgcc1 liburcu-devel liburcu libxml2-devel libxml2 gcc-core make pkg-config asciidoc xmlto docbook-xsl docbook-xml45"
+
+CYGCONF_ARGS="--without-lttng-ust --disable-bin-lttng --disable-bin-lttng-consumerd --disable-bin-lttng-crash --disable-extras --disable-bin-lttng-sessiond"
+
+
+PKG_NAMES="${NAME} ${NAME}-devel"
+
+lttng_tools_CONTENTS="usr/bin/*.exe usr/bin/*.dll usr/share/doc/ usr/share/man/ usr/share/xml/"
+lttng_tools_REQUIRES='babeltrace'
+lttng_tools_devel_CONTENTS="usr/include/ usr/lib/"
+
+KEEP_LA_FILES="none"
