@@ -1,9 +1,12 @@
 NAME="lttng-tools"
 VERSION=2.9.3
 RELEASE=1
-CATEGORY="Libs"
-SUMMARY="LTTng tools"
-DESCRIPTION="TODO"
+CATEGORY="Utils"
+SUMMARY="LTTng control and utility programs"
+DESCRIPTION="The LTTng project aims at providing highly efficient tracing tools for Linux.
+ Its tracers help tracking down performance issues and debugging problems
+ involving multiple concurrent processes and threads. Tracing across multiple
+ systems is also possible."
 HOMEPAGE="http://lttng.org/"
 SRC_URI="http://lttng.org/files/lttng-tools/lttng-tools-${VERSION}.tar.bz2"
 SRC_DIR="lttng-tools-${VERSION}"
