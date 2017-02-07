@@ -17,7 +17,7 @@ PATCH_URI="2dc96a80b52afd2cc2ec1f1528d47b591ea11b46.patch
            009e5fe3e03be29b635afc66a0ac2d44db14e057.patch"
 
 
-DEPEND="cygwin libgcc1 liburcu-devel liburcu libxml2-devel libxml2 gcc-core make pkg-config asciidoc xmlto docbook-xsl docbook-xml45"
+DEPEND="cygwin libgcc1 liburcu-devel liburcu libxml2-devel libiconv-devel libxml2 gcc-core make pkg-config asciidoc xmlto docbook-xsl docbook-xml45"
 
 CYGCONF_ARGS="--without-lttng-ust --disable-bin-lttng --disable-bin-lttng-consumerd --disable-bin-lttng-crash --disable-extras --disable-bin-lttng-sessiond"
 
